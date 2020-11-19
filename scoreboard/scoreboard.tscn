@@ -1,0 +1,80 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://scoreboard/scoreboard.gd" type="Script" id=1]
+[ext_resource path="res://font/Font.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://scoreboard/img/JapanRisingSun.png" type="Texture" id=3]
+[ext_resource path="res://background/img_tile/jap_tile_01.png" type="Texture" id=4]
+
+[sub_resource type="DynamicFont" id=1]
+size = 24
+use_filter = true
+font_data = ExtResource( 2 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 24
+use_filter = true
+font_data = ExtResource( 2 )
+
+[node name="scoreboard" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="Label_score" type="Label" parent="."]
+margin_left = 921.0
+margin_top = 84.0
+margin_right = 996.0
+margin_bottom = 111.0
+custom_fonts/font = SubResource( 1 )
+text = "999"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureProgress" type="TextureProgress" parent="."]
+margin_left = 920.461
+margin_top = 2.65459
+margin_right = 1432.46
+margin_bottom = 514.655
+rect_scale = Vector2( 0.15, 0.15 )
+value = 78.0
+texture_progress = ExtResource( 3 )
+fill_mode = 4
+tint_under = Color( 0.882353, 0.0470588, 0.0470588, 1 )
+tint_progress = Color( 0.901961, 0.0392157, 0.0392157, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Timer_1sec" type="Timer" parent="."]
+autostart = true
+
+[node name="Timer_funcaddtime" type="Timer" parent="."]
+one_shot = true
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_left = 928.0
+margin_top = 122.0
+margin_right = 992.0
+margin_bottom = 183.0
+texture = ExtResource( 4 )
+expand = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_tiles" type="Label" parent="."]
+margin_left = 945.235
+margin_top = 136.94
+margin_right = 975.235
+margin_bottom = 163.94
+custom_fonts/font = SubResource( 2 )
+text = "100"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="timeout" from="Timer_1sec" to="." method="_on_Timer_1sec_timeout"]
+[connection signal="timeout" from="Timer_funcaddtime" to="." method="_on_Timer_funcaddtime_timeout"]

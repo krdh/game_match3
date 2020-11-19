@@ -1,0 +1,82 @@
+"""
+		var balloon = res_floatingtext.instance()
+		balloon.position = position
+		balloon.amount = 100
+		Global.node_creation_parent.add_child(balloon) 
+"""
+
+
+#	for r in range(Global.board.height):                   # rows
+#		for c in range(Global.board.width):                # Column
+#			if b[r][c] is AnimatedSprite :
+#				b[r][c].set_animated(false)
+
+
+#	if    dir == "up"    : #---------------------------------------------------
+#		if  ( _tst_not_empty(r-1,c) ):                          # does node exist ?
+#			if ( b[r-1][c].animated() == false ):               # is it currently in a animation
+#				b[r][c].set_animated(true) ; b[r-1][c].set_animated(true)
+#				$Tween.interpolate_property( b[r][c]  , "position", p[r][c]   , p[r-1][c] ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				$Tween.interpolate_property( b[r-1][c], "position", p[r-1][c] , p[r][c]   ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				b.push_back( b[r][c] )												# swap array[][] positions
+#				b[r][c]   = b[r-1][c]
+#				b[r-1][c] = b.pop_back()
+#				$Tween.start()														# start block swapping animation
+#				Global.playsound("slide")
+#				if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[r-1][c] ) )
+#	elif  dir == "down"  : #---------------------------------------------------
+#		if  ( _tst_not_empty(r+1,c) ):                           # does node exist ?
+#			if ( b[r+1][c].animated() == false ):
+#				b[r][c].set_animated(true) ; b[r+1][c].set_animated(true)
+#				$Tween.interpolate_property( b[r][c]  , "position", p[r][c]   , p[r+1][c] ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				$Tween.interpolate_property( b[r+1][c], "position", p[r+1][c] , p[r][c]   ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				b.push_back(b[r][c])
+#				b[r][c]   = b[r+1][c]
+#				b[r+1][c] = b.pop_back()
+#				$Tween.start()
+#				Global.playsound("slide")
+#				if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[r+1][c] ) )
+#	elif  dir == "left"  : #---------------------------------------------------
+#		if  ( _tst_not_empty (r,c-1) ):                           # does node exist ?
+#			if ( b[r][c-1].animated() == false ):
+#				b[r][c].set_animated(true) ; b[r][c-1].set_animated(true)
+#				$Tween.interpolate_property( b[r][c]  , "position", p[r][c]   , p[r][c-1] ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				$Tween.interpolate_property( b[r][c-1], "position", p[r][c-1] , p[r][c]   ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				b.push_back(b[r][c])
+#				b[r][c]   = b[r][c-1]
+#				b[r][c-1] = b.pop_back()
+#				$Tween.start()
+#				Global.playsound("slide")
+#				if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[r][c-1] ) )
+#	elif  dir == "right" : #---------------------------------------------------
+#		if  ( _tst_not_empty (r,c+1) ):                           # does node exist ?
+#			if ( b[r][c+1].animated() == false ):
+#				b[r][c].set_animated(true) ; b[r][c+1].set_animated(true)
+#				$Tween.interpolate_property( b[r][c]  , "position", p[r][c]   , p[r][c+1] ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				$Tween.interpolate_property( b[r][c+1], "position", p[r][c+1] , p[r][c]   ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT )
+#				b.push_back(b[r][c])
+#				b[r][c]   = b[r][c+1]
+#				b[r][c+1] = b.pop_back()
+#				$Tween.start()
+#				Global.playsound("slide")
+#				if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[r][c+1] ) )
+#	else:                 #---------------------------------------------------
+#		print("error swapblocks dir string")
+#		return
+
+
+func findunsuportedblock() -> bool :
+	for r in range(Global.board.height-2, -1, -1):   # start at row above bottom-row til row 0
+		for c in range(Global.board.width):
+			if ( _tst_not_empty(r,c) )and( _tst_empty(r+1,c)  ):
+#				var ebb = empty_blocks_below(r,c)
+#				print( "Unsup.Block Found row:" + str(r) +" col:"+ str(c) + "   EmptyBlockBelow:"+ str(ebb) );
+				dropblock(r, c )
+				return(true)
+			if ( r==0 )and( _tst_empty(r,c) ):        # at top row, generate new blocks
+#				var ebb = empty_blocks_below(0,c)
+#				print("Empty til top col:" + str(c) + "   EmptyBlockBelow r0"+ str(ebb) )
+#				dropblock(r+ebb, c, true)
+				dropblock(0 , c )
+				return(true)
+	return (false)

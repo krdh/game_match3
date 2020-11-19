@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Traditional_Japanese_Music.ogg-2fcaba569260f0c438c8428f4e675881.oggstr"
+
+[deps]
+
+source_file="res://sound_guy/snd/Traditional_Japanese_Music.ogg"
+dest_files=[ "res://.import/Traditional_Japanese_Music.ogg-2fcaba569260f0c438c8428f4e675881.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

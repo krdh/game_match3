@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/Drip.wav-d64b7e4c8363f7d37198d36c5fc0e529.sample"
+
+[deps]
+
+source_file="res://sound_guy/snd/Drip.wav"
+dest_files=[ "res://.import/Drip.wav-d64b7e4c8363f7d37198d36c5fc0e529.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
