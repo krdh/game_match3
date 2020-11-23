@@ -9,7 +9,7 @@ var   db: bool    = true
 var tmr_tick:int  = 0
 
 #- - - - - - - - - - - - - - - - - - - - Constants
-enum            { INIT, NEWBOARD, GAME, UNDOMOVE, MATCH, COLLAPSE, CLRBOARD, NEXTLEVEL, IDLE }
+enum            { INIT, NEWBOARD, GAME, MATCH, COLLAPSE, CLRBOARD, NEXTLEVEL, IDLE }
 enum BLOCKTYPE  { ERROR, NORMAL, WALL, BLANK, KEY, BOMB, CLOCK , END }
 enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , END }
 enum TILETYPE   { ERROR, NONE, NORMAL, END }
@@ -38,12 +38,6 @@ var userinputdetected = {
 	occured = false         ,
 	v       = Vector2(0,0)  ,
 	s       = String("err") }
-
-var undomove = {
-	occured = false        ,
-	loc     = Vector2(0,0) ,
-	dir     = String("err") }
-
 
 var gameprogress = {
 		nomoremoves       = false ,
@@ -96,7 +90,7 @@ func _create_new_board():
 	gameprogress.endoflevelreached = false
 	b.clear()                                 # blocks
 	t.clear()                                 # background tiles
-	p.clear()                                 # position 
+	p.clear()                                 # position Vector2's
 	randomize()
 	for r in range(Global.board.height):                         # rows
 		b.append([])
@@ -573,7 +567,7 @@ func swapblocks(loc:Vector2, dir:String):
 	var c  : int  = int( round(loc.x) )         # column
 	var tr : int                                # target row
 	var tc : int                                # target column
-	var blkinfo                                   # holds get_blocktype() get_blocklayer() result
+	var blkinfo                                 # holds get_blocktype() get_blocklayer() result
 	
 	if ( r > Global.board.height ) or ( c > Global.board.width ):
 		print("ERROR swapblocks vec out of range")
@@ -649,21 +643,19 @@ func swapblocks(loc:Vector2, dir:String):
 	b.push_back( b[r][c] )												# swap array[][] positions
 	b[r][c]   = b[tr][tc]
 	b[tr][tc] = b.pop_back()
-	$Tween.start()														# start block swapping animation
-	Global.playsound("slide")
-	if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[tr][tc] ) )
-
-	if undomove.occured == true :    # we just executed an undo move (fake user input data)
-		undomove.occured = false
-		Global.playsound("error")
-		print("swapblocks exec undo move done")
-	else:                            # we executed a normal (real user input data) move
-		if ( findmatch(false) == 0 ):    # no Match3, need to swapblocks back
-			print("swapblocks NO match found after move")
-			undomove.dir     = dir
-			undomove.loc     = loc
-			undomove.occured = true               # announce/prepair undo-move
+	
+	if ( findmatch(false) == 0 ):    # no Match3, need to swapblocks back
+			#add swapback animation
+			$Tween.interpolate_property( b[r][c]  , "position", p[r][c]   , p[tr][tc] ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT , BLK_ANI_SPEED)
+			$Tween.interpolate_property( b[tr][tc], "position", p[tr][tc] , p[r][c]   ,BLK_ANI_SPEED ,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT , BLK_ANI_SPEED)
+			b.push_back( b[r][c] )
+			b[r][c]   = b[tr][tc]                                      # swap array[][] positions back
+			b[tr][tc] = b.pop_back()
 			Global.playsound("error")
+			
+	$Tween.start()                                                     # start block swapping animation
+	Global.playsound("slide")
+	if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[tr][tc] ) )		
 
 #------------------------------------------------------------------------------
 func clear_animated():
@@ -700,12 +692,8 @@ func _process(delta):
 				if ( userinputdetected.occured ):
 					userinputdetected.occured = false
 					swapblocks(userinputdetected.v, userinputdetected.s)
-				
-				if findmatch(false) == 0 :                # no hit
-					if ( undomove.occured == true ):
-						fsm = UNDOMOVE
-				else:
-					findmatch()
+
+				if findmatch():
 					fsm = MATCH
 			
 			if ( gameprogress.nomoremoves ) :
@@ -715,15 +703,7 @@ func _process(delta):
 				pass
 			else :
 				nroftilesonboard()
-			
-			
-		UNDOMOVE: #----------------------------------- UNDOMOVE
-			if ( $Tween.is_active() == false ):
-				userinputdetected.occured = true
-				userinputdetected.v = undomove.loc
-				userinputdetected.s = undomove.dir
-					
-				fsm = GAME
+
 		MATCH:    #----------------------------------- MATCH
 			if ( $Tween.is_active() == false ):
 				clear_animated() #needed?
