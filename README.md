@@ -20,10 +20,14 @@ I play/test the game on a linux system using a mouse.
 - way to shape levels with wooden crates and empty spots. define how often new bombs,dice,etc are added to field
 - levels.gd file to define multiple levels and load them
 - detect 'no more moves' and give 'move' animated hint when player is inactive
+- make swapping block possible when other blocks are falling
+- tutorial popup banners for (first 3) levels
+- 4 levels
 - ...
 
 #Todo:
-- make swapping block possible when other blocks are falling
+- Animation when key hits lock
+- act on play time timeout
 - refactoring
 - ... juice and pollish ...
 

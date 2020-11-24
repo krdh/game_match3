@@ -1,6 +1,6 @@
 extends Node2D
 
-const MAXLEVEL = 3
+const MAXLEVEL = 4
 
 var _level:int = 0
 
@@ -34,6 +34,11 @@ func set_level(value:int) -> bool :
 			layer  = layer3.duplicate(true)
 			border = border3.duplicate(true)
 			Global.board = levelconf_3.duplicate(true)
+			return ( true )
+		4:
+			layer  = layer4.duplicate(true)
+			border = border4.duplicate(true)
+			Global.board = levelconf_4.duplicate(true)
 			return ( true )
 		_:
 			print("Error levels.gd set_level")
@@ -195,3 +200,52 @@ var border3     = [ [ 2 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 2 ], #1
 					[ 2 , 2 , 2 , 2 , 1 , 1 , 1 , 1 , 2 , 2 , 2 , 2 ] ] #11
 
 
+#------------------------------------------------------------------- Level 4
+# What layers and configuration need to be applied for this level:
+var dict_tutorial_4 = { 
+					enabled    = true ,
+					text       = "This is level 4" ,
+					blocklayer = Global.BLOCKLAYER.BOMBSMALL }
+
+var levelconf_4 = {
+	level        = 4,
+	height       = int(13)  ,
+	width        = int(14) ,
+	clock        = 3*60    ,
+	uniqueblocks = 5 ,
+	newicepct    = 1 ,
+	newbombpct   = 1 ,
+	newdicepct   = 2 ,
+	newclockpct  = 2 ,
+	maxkeys      = 3 ,
+	tutorial     = dict_tutorial_4
+	}
+#                     0      1    2     3      4        5           6       7       8       9
+# enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , END }
+var layer4      = [ [ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ], #1
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ], #5
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 5 , 0 , 0 , 5 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+					[ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ], #12
+					[ 0 , 0 , 0 , 0 , 8 , 0 , 0 , 0 , 0 , 8 , 0 , 0 , 0 , 0 ] ]
+
+var border4     = [ [ 1 , 0 , 0 , 1 , 0 , 1 , 2 , 2 , 1 , 0 , 1 , 0 , 0 , 1 ], #1
+					[ 1 , 0 , 0 , 1 , 0 , 1 , 2 , 2 , 1 , 0 , 1 , 0 , 0 , 1 ],
+					[ 1 , 0 , 0 , 1 , 0 , 1 , 2 , 2 , 1 , 0 , 1 , 0 , 0 , 1 ],
+					[ 1 , 0 , 0 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 0 , 0 , 0 , 1 ],
+					[ 1 , 0 , 0 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 0 , 0 , 0 , 1 ], #5
+					[ 1 , 0 , 0 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 0 , 0 , 0 , 1 ],
+					[ 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 ],
+					[ 2 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 2 ],
+					[ 2 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 2 ],
+					[ 2 , 2 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 2 , 2 ], #
+					[ 2 , 2 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 2 , 2 ], #
+					[ 2 , 2 , 2 , 1 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 2 , 2 , 2 ],
+					[ 2 , 2 , 2 , 2 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 2 , 2 , 2 ] ] #13

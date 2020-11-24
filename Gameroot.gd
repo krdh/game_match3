@@ -34,15 +34,11 @@ var t  = []                  # 2d array holds background tiles (nodes)
 var p  = []                  # 2d array hold positions (x,y) pixels (constant)
 var fsm:int = 0              # state machine
 
-var userinputdetected = {
-	occured = false         ,
-	v       = Vector2(0,0)  ,
-	s       = String("err") }
-
 var gameprogress = {
 		nomoremoves       = false ,
 		endoflevelreached = false ,
-		hitalltiles       = false
+		hitalltiles       = false ,
+		nomoretime        = false
 }
 
 #- - - - - - - - - - - - - - - - - - - - Signals gameprogress.nomoremoves
@@ -71,8 +67,14 @@ func _ready():
 		Global.node_levels.set_level(1)
 
 	var error = Global.node_mouse_handler.connect("mouse_event", self, "_sig_mouse_event")
-	if ( error != OK ): print("Cannot connect to mouse_event, code:" + error);
+	if ( error != OK ): print("Cannot connect to mouse_event signal, code:" + error);
+	
 	error = Global.node_mouse_handler.connect("player_idle", self, "_sig_player_idle_event")
+	if ( error != OK ): print("Cannot connect to player_idle signal, code:" + error);
+
+	error = Global.node_scoreboard.connect("out_of_time", self, "_sig_scoreboard_event")
+	if ( error != OK ): print("Cannot connect to out_of_time signal, code:" + error);
+	
 
 	Global.playsound("BackgroundMusic", randi()%(60*30) ) #start somewhere in first 30minutes
 
@@ -399,7 +401,10 @@ func nrofkeysonboard() -> int:
 func nroftilesonboard(attention:bool = false) -> int:
 	var matchcount = 0
 	var arrayofmatches:Array
-	
+
+	if gameprogress.hitalltiles :                      # all tiles have been hit
+		return ( 0 )
+
 	for r in range(Global.board.height):               # check all rows
 		for c in range(Global.board.width):            # check Columns
 			if ( t[r][c] is Node2D )  :
@@ -420,6 +425,7 @@ func nroftilesonboard(attention:bool = false) -> int:
 
 	if matchcount  == 0 :            # check of ALL tiles are 'hit'
 		gameprogress.hitalltiles = true
+		if db:print("all tiles hit")
 
 	return ( matchcount )
 
@@ -689,24 +695,26 @@ func _process(delta):
 			if ( gameprogress.endoflevelreached == true ) :
 				fsm = CLRBOARD
 			else:
-				if ( userinputdetected.occured ):
-					userinputdetected.occured = false
-					swapblocks(userinputdetected.v, userinputdetected.s)
+#				if ( userinputdetected.occured ):
+#					userinputdetected.occured = false
+#					swapblocks(userinputdetected.v, userinputdetected.s)
 
 				if findmatch():
 					fsm = MATCH
 			
 			if ( gameprogress.nomoremoves ) :
 				pass
-			
+			if ( gameprogress.nomoretime ) :
+				pass
 			if ( gameprogress.hitalltiles ) :
 				pass
 			else :
 				nroftilesonboard()
 
+
 		MATCH:    #----------------------------------- MATCH
 			if ( $Tween.is_active() == false ):
-				clear_animated() #needed?
+				#clear_animated() #needed?
 				destroyblocks()
 				fsm = COLLAPSE
 		COLLAPSE: #----------------------------------- COLLAPSE
@@ -719,16 +727,19 @@ func _process(delta):
 				tmr_tick = 40            # 30x 100ms
 				var balloon = res_floatingtext.instance()
 				balloon.set_style("banner")
-#				balloon.position = Global.CENTERSCREEN
 				balloon.amount = "New Level loading"
-#				balloon.popupscale = Vector2(4,4)
-#				balloon.delay  = 3
 				Global.node_creation_parent.add_child(balloon) 
 				fsm = NEXTLEVEL
 		NEXTLEVEL:#----------------------------------- NEXTLEVEL
 			if tmr_tick == 0:
 				if ( Global.node_levels.set_next_level() == false ):
-					print("Error loading next level")
+					print("No More New Levels, Starting Level 1 again")
+					var balloon = res_floatingtext.instance()
+					balloon.set_style("banner")
+					balloon.amount = "No More New Levels"
+					Global.node_creation_parent.add_child(balloon) 
+					Global.node_levels.set_level(1)
+					fsm = NEWBOARD
 				else:
 					fsm = NEWBOARD
 		IDLE:     #----------------------------------- IDLE
@@ -736,22 +747,9 @@ func _process(delta):
 		_   :     #----------------------------------- catchall
 			print("Undef fsm state")
 
-#	if (fsm >= GAME ):                            # Debug add label to block
-#		for r in range(Global.board.height):                   # rows
-#			for c in range(Global.board.width):                # Column
-#				if _tst_not_empty(r,c) :
-#
-#					b[r][c].set_txt( str(b[r][c].get_blocktype() ) + " " + str(b[r][c].dbget_frame() ) )     # update label
-
-#	# reset animated flag when Tweens are done   # this generates signals contineusly !!
-#   #replaced by  _on_Tween_tween_all_completed():
-#	if (fsm >= GAME )and( $Tween.is_active() == false ): clear_animated() ;
-
 #------------------------------------------------------------------------------
 func _sig_mouse_event(v,s):
-	userinputdetected.occured = true
-	userinputdetected.v = v
-	userinputdetected.s = s
+	swapblocks(v, s)
 
 #------------------------------------------------------------------------------
 # signal received from mousehandler.gd that user has been inactive
@@ -774,6 +772,11 @@ func _sig_player_idle_event():
 				b[nmm.x][nmm.y+1].nudgeblock( Vector2(-1,0) )
 	
 	nroftilesonboard(true)   # true => highlight, get attention of non hit tiles
+
+#------------------------------------------------------------------------------
+# signal received from scoreboard.gd that time has run out
+func _sig_scoreboard_event(i):
+	gameprogress.nomoretime = true
 
 #------------------------------------------------------------------------------
 func _on_Timer_timeout():

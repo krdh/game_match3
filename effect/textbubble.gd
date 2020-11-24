@@ -39,3 +39,9 @@ func _on_Tween_tween_all_completed():
 func _on_Timer_timeout():
 	self.visible = true
 	$Tween.start()
+
+# remove when (mouse)clicked
+func _on_MarginContainer_gui_input(event):
+	if event.is_pressed() :
+		queue_free()
+

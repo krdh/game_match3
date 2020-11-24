@@ -37,7 +37,6 @@ margin_top = 2.65459
 margin_right = 1432.46
 margin_bottom = 514.655
 rect_scale = Vector2( 0.15, 0.15 )
-value = 78.0
 texture_progress = ExtResource( 3 )
 fill_mode = 4
 tint_under = Color( 0.882353, 0.0470588, 0.0470588, 1 )
@@ -52,7 +51,7 @@ autostart = true
 [node name="Timer_funcaddtime" type="Timer" parent="."]
 one_shot = true
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect_tile" type="TextureRect" parent="."]
 margin_left = 928.0
 margin_top = 122.0
 margin_right = 992.0

@@ -59,5 +59,6 @@ __meta__ = {
 
 [node name="Timer" type="Timer" parent="."]
 
+[connection signal="gui_input" from="Label/MarginContainer" to="." method="_on_MarginContainer_gui_input"]
 [connection signal="tween_all_completed" from="Tween" to="." method="_on_Tween_tween_all_completed"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

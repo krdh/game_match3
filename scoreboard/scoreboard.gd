@@ -3,11 +3,16 @@ extends Node2D
 onready var blk             = preload("res://blocks/blk.tscn")
 onready var node_blk_sprite = preload("res://blocks/blk_sprites.tscn")
 
+onready var node_twinkle = preload("res://effect/twinkle.tscn")
+var twinkle_timeout:float = 0.0
+
 var count_timer:float
 
 var _blockscore      = []          # howmany block of each color/type destroyed
 var _blocktypes      = []
 var _blockscoreLabel = []
+
+signal out_of_time()
 
 #------------------------------------------------------------------------------ 
 func _ready():
@@ -26,10 +31,10 @@ func _exit_tree():
 func update():
 
 	if Global.board.empty():
-		print("scoreboard update() Global.board dict is empty")
+		print("Error scoreboard update() Global.board dict is empty")
 		return
 
-	count_timer = Global.board.clock
+	count_timer = 0
 	$TextureProgress.max_value = Global.board.clock
 	$TextureProgress.value     = 0
 
@@ -79,9 +84,11 @@ func _on_Timer_funcaddtime_timeout():
 
 #------------------------------------------------------------------------------
 func _on_Timer_1sec_timeout():
-	if count_timer <= Global.board.clock :
+	if count_timer <= $TextureProgress.max_value : #Global.board.clock :
 		count_timer += 1 ;
 		$TextureProgress.value = count_timer
+	else:
+		emit_signal("out_of_time", $TextureProgress.max_value )
 
 #------------------------------------------------------------------------------
 # receives .frame (block color/type as value:int
@@ -99,16 +106,16 @@ func _on_sig_blockselfdestruct(value):
 #------------------------------------------------------------------------------
 func update_hittiles(i:int):
 	$Label_tiles.text = str(i)
-	#var colorstart = Color("c8000000")  # c8000000   blackgold
 	var colorend   = Color("c8f2ff00")  # c8f2ff00  brightgold
 	if i == 0:
 		$Label_tiles.text = ""
-		$TextureRect.set_modulate( colorend )
+		$TextureRect_tile.set_modulate( colorend )
+		var twinkle = node_twinkle.instance()
+		twinkle.position = $TextureRect_tile.rect_position + ( 0.5 * $TextureRect_tile.rect_size )
+		Global.node_creation_parent.add_child( twinkle )
 
-
-#------------------------------------------------------------------------------
-
-
+#==============================================================================
+	#var colorstart = Color("c8000000")  # c8000000   blackgold
 
 
 
