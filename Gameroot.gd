@@ -5,13 +5,13 @@ extends Node2D
 
 
 #- - - - - - - - - - - - - - - - - - - - Debug
-var   db: bool    = true
+var db: bool      = true
 var tmr_tick:int  = 0
 
 #- - - - - - - - - - - - - - - - - - - - Constants
-enum            { INIT, NEWBOARD, GAME, MATCH, COLLAPSE, CLRBOARD, NEXTLEVEL, IDLE }
+enum            { INIT, NEWBOARD, GAME, MATCH, COLLAPSE, CLRBOARD, OUTOFTIME, RELOADBOARD, NEXTLEVEL, IDLE }
 enum BLOCKTYPE  { ERROR, NORMAL, WALL, BLANK, KEY, BOMB, CLOCK , END }
-enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , END }
+enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , KEY, END }
 enum TILETYPE   { ERROR, NONE, NORMAL, END }
 const BLK_ANI_SPEED:float = 0.1
 
@@ -23,6 +23,7 @@ onready var res_floatingtext   = preload("res://scoreboard/floatingtext.tscn")
 onready var res_textbubble     = preload("res://effect/textbubble.tscn")
 onready var res_dicerays       = preload("res://effect/rays.tscn")
 onready var res_bombexplosion  = preload("res://effect/explosion.tscn")
+onready var res_flyingblock    = preload("res://effect/flyingblock.tscn")
 onready var res_mousehandler   = preload("res://MouseHandler/MouseHandler.tscn")
 onready var res_levels         = preload("res://levels/levels.tscn")
 
@@ -38,14 +39,13 @@ var gameprogress = {
 		nomoremoves       = false ,
 		endoflevelreached = false ,
 		hitalltiles       = false ,
-		nomoretime        = false
+		nomoretime        = false ,
+		keyhitlock        = false
 }
 
 #- - - - - - - - - - - - - - - - - - - - Signals gameprogress.nomoremoves
 signal  sig_blockselfdestruct()
-#signal  sig_undomove()
 signal  sig_clear_animated
-
 
 #------------------------------------------------------------------------------
 # register with Global, connect to mouse_handler() , instance scoreboard
@@ -64,10 +64,13 @@ func _ready():
 		print("Error No level information")
 		self.queue_free()
 	else :
-		Global.node_levels.set_level(1)
+		Global.node_levels.set_level(4)
 
 	var error = Global.node_mouse_handler.connect("mouse_event", self, "_sig_mouse_event")
 	if ( error != OK ): print("Cannot connect to mouse_event signal, code:" + error);
+	
+	error = Global.node_mouse_handler.connect("mouse_drag", self, "_sig_mouse_drag_event")
+	if ( error != OK ): print("Cannot connect to mouse_drag_event signal, code:" + error);
 	
 	error = Global.node_mouse_handler.connect("player_idle", self, "_sig_player_idle_event")
 	if ( error != OK ): print("Cannot connect to player_idle signal, code:" + error);
@@ -89,7 +92,12 @@ func _create_new_board():
 		print("Error No level information")
 		self.queue_free()
 	
+	gameprogress.nomoremoves       = false
 	gameprogress.endoflevelreached = false
+	gameprogress.hitalltiles       = false
+	gameprogress.nomoretime        = false
+	gameprogress.keyhitlock        = false
+	
 	b.clear()                                 # blocks
 	t.clear()                                 # background tiles
 	p.clear()                                 # position Vector2's
@@ -233,8 +241,6 @@ func findmatch( tag:bool = true ):
 	for r in range(1, Global.board.height-1):          # check rows, one block away from edge
 		for c in range(Global.board.width):            # check Column for Vertical matches
 			if ( ( _fmvalid(r,c) ) and ( _fmvalid(r+1,c) ) and ( _fmvalid(r-1,c) ) ):
-				if ( chforkeymatches() ):                     # check if key is on top of keyhole
-					matchcount +=1
 				if ( b[r][c].get_blockcolor() == b[r+1][c].get_blockcolor() ) and ( b[r][c].get_blockcolor() == b[r-1][c].get_blockcolor() ):
 					if tag:
 						b[r][c].set_match()
@@ -244,10 +250,13 @@ func findmatch( tag:bool = true ):
 						scorecard.append( p[r-1][c] )
 						scorecard.append( p[r+1][c] )
 					matchcount +=1
+
+
 	
 	if tag and (fsm != NEWBOARD):
-		chkfordiceclockandsetmatches()            # check for matches on Dice
-		scanboardwithbombmatches()           # check for matches on Bombs
+		matchcount += chkfordiceclockandsetmatches()  # check for matches on Dice
+		matchcount += scanboardwithbombmatches()      # check for matches on Bombs
+		matchcount += chforkeymatches()               # check if key is on top of keyhole
 	
 	if tag and (fsm != NEWBOARD):
 		for nr in scorecard.size():
@@ -286,16 +295,19 @@ func _fmvalid(r,c) -> bool :
 #------------------------------------------------------------------------------
 func scanboardwithbombmatches():
 	var newmatchesset = true
+	var matchcount: int = 0
 	while newmatchesset :
 		newmatchesset = false
 		for r in range(Global.board.height):    
 			for c in range( Global.board.width): 
 				if chforbombandsetmatches(r,c):
+					matchcount += 1
 					if ( newmatchesset == false ):   # set once, forces redo of while-loop 
 						newmatchesset = true
-
+	return ( matchcount )
+	
 #---------------------------------------------
-# check for bomb (type) layers and set matcheS 
+# check for bomb (type) layers and set matcheS , return true is bombs found
 func chforbombandsetmatches(r,c):
 	var flagmatchset:  bool = false
 	
@@ -336,11 +348,13 @@ func chforbombandsetmatches(r,c):
 # Check for matches on CLOCK and add time to players countdown timer
 func chkfordiceclockandsetmatches():
 	var arrayofmatches:PoolVector2Array
+	var matchcount: int = 0
 	for r in range(Global.board.height):    
 		for c in range( Global.board.width): 
 			# check for DICE blocks
 			if ( b[r][c].get_blocklayer() == BLOCKLAYER.DICE )and( b[r][c].get_match() ):
 				var cnt = 4                   # destroy 4 random blocks on board
+				matchcount += cnt
 				# holds [0] pos of dice, [1,2,3,4] pos of dice destroyed
 				arrayofmatches = [ p[r][c] ]
 				while cnt:
@@ -367,24 +381,57 @@ func chkfordiceclockandsetmatches():
 		Global.node_dicerays.points = arrayofmatches
 		#Global.node_dicerays.set_fade(5)
 		Global.node_dicerays.start()
-	
+
+	return ( matchcount )
+#------------------------------------------------------------------------------
+# destroy a number of normal (none layered) blocks in random locations
+func destroyrandomblocks( i:int = 4 ):
+	var cnt = i
+	while cnt:
+		var rr = randi()%Global.board.height
+		var cc = randi()%Global.board.width
+		if ( _fmvalid(rr ,cc ) ):
+			if ( b[rr][cc].get_blocklayer() == BLOCKLAYER.NONE ):
+				if b[rr][cc].get_match() == false :
+					b[rr][cc].set_match()
+					Global.instance_node( res_bombexplosion, p[rr][cc], Global.node_creation_parent )
+					cnt -= 1
+	gameprogress.nomoremoves = false
+
 #------------------------------------------------------------------------------
 # check if a key hits a keyhole
-func chforkeymatches() -> bool:
-	for r in range(Global.board.height-1):             # check all rows
-		for c in range(Global.board.width):            # check Columns
+func chforkeymatches() :
+	var matchcount: int = 0
+	if gameprogress.keyhitlock:
+		return ( matchcount )
+	for r in range(Global.board.height-1):                     # check all rows
+		for c in range(Global.board.width):                    # check Columns
 			if ( b[r][c] is Node2D ) and( b[r+1][c] is Node2D ) :
 				if b[r][c].get_blocktype() == BLOCKTYPE.KEY :
 					if b[r+1][c].get_blocklayer() == BLOCKLAYER.KEYHOLE :
 						b[r][c].set_match()
-						print("Key Hit Keyhole")  # do something !
-						gameprogress.endoflevelreached = true
-						return ( true )
+						gameprogress.keyhitlock = true
+						# animation of key flying to scoreboard side
+						Global.instance_node(res_flyingblock, p[r][c], Global.node_creation_parent)
+						Global.node_flyingblock.config( p[r][c], Global.KEYMATCHED_POS , BLOCKLAYER.KEY, 2, 0)
+						Global.node_scoreboard.show_key()
+						destroyallkeysandlocks()      # search all keys and locks and remove
+						matchcount += 1
 					elif b[r+1][c].get_blocktype() == BLOCKTYPE.WALL :
 						b[r][c].set_match()
-						print("Key hit Wall")
-						return ( true )
-	return ( false )
+						matchcount += 1
+						
+	return ( matchcount )
+
+# destroy all keys and remove keyholes on board
+func destroyallkeysandlocks():
+	for r in range(Global.board.height):               # check all rows
+		for c in range(Global.board.width):            # check Columns
+			if ( b[r][c] is Node2D ) :
+				if b[r][c].get_blocktype() == BLOCKTYPE.KEY :
+					b[r][c].set_match()
+				if b[r][c].get_blocklayer() == BLOCKLAYER.KEYHOLE :
+					b[r][c].set_blocklayer(BLOCKLAYER.NONE)
 
 #------------------------------------------------------------------------------
 func nrofkeysonboard() -> int:
@@ -453,7 +500,7 @@ func destroyblocks() -> int :
 						print("destroyblocks() destroy error rc:" +str(r)+str(c) + " animation:" + str( b[r][c].get_animated() ) ) ;
 					else:
 						t[r][c].set_hit()
-						emit_signal("sig_blockselfdestruct", b[r][c].get_blockcolor() )            #CODECHANGE
+						emit_signal("sig_blockselfdestruct", b[r][c].get_blockcolor() ) 
 						# done in blk.gd Global.instance_node(res_explodeblock, p[r][c], self)
 						matchcount +=1
 	
@@ -506,8 +553,10 @@ func dropblock(r:int, c:int ): # new:bool=false):
 				b[nr][c].set_animated(true)
 				b[nr][c].position   = p[0][c]   # should be above board, now starts at top cel. tricked Tween begin pos
 				add_child(b[nr][c])
-				if ( rand_bool(2.5) )and( nrofkeysonboard() <= Global.board.maxkeys ) :   # add % of blocks as keys 
-					b[nr][c].set_blocktype(BLOCKTYPE.KEY)                               # add key
+				
+				# add random 2.5% of blocks as keys 
+				if ( rand_bool(2.5) )and( nrofkeysonboard() <= Global.board.maxkeys )and not (gameprogress.keyhitlock) :
+					b[nr][c].set_blocktype(BLOCKTYPE.KEY)              # add key
 				else:
 					b[nr][c].set_blockcolor( givenewblock() )
 					if ( rand_bool( Global.board.newicepct  ) ):
@@ -573,36 +622,11 @@ func swapblocks(loc:Vector2, dir:String):
 	var c  : int  = int( round(loc.x) )         # column
 	var tr : int                                # target row
 	var tc : int                                # target column
-	var blkinfo                                 # holds get_blocktype() get_blocklayer() result
-	
-	if ( r > Global.board.height ) or ( c > Global.board.width ):
-		print("ERROR swapblocks vec out of range")
-		return
-	
-	if ( _tst_empty(r,c) ) :   # if mouse_down cell empty, skip handling
-		return
-	
-	blkinfo = b[r][c].get_blocktype()
-	match blkinfo :
-		BLOCKTYPE.WALL:  return ;
-		BLOCKTYPE.BLANK: return ;
-		BLOCKTYPE.BOMB:  return ;
-		#BLOCKTYPE.KEY:  return ;
+	#var blkinfo                                 # holds get_blocktype() get_blocklayer() result
 
-	blkinfo  = b[r][c].get_blocklayer()
-	match blkinfo :
-		BLOCKLAYER.ICE       : return  ;
-		BLOCKLAYER.CHAIN     : return  ;
-		BLOCKLAYER.CHAINS    : return  ;
-		BLOCKLAYER.BOMBSMALL : return  ;
-		BLOCKLAYER.BOMBLARGE : return  ;
-		BLOCKLAYER.LOCK      : return  ;
-		#BLOCKLAYER.DICE      : return  ;
-		#BLOCKLAYER.CLOCK     : return ;
-		
-	if ( b[r][c].get_animated() ): # cel is in animation,  skip handling
+	if not _is_swapableblock(r, c, dir) :
 		return
-
+#
 	if    dir == "up":
 		tr = r-1
 		tc = c
@@ -618,29 +642,6 @@ func swapblocks(loc:Vector2, dir:String):
 	else:
 		print("error swapblocks dir string")
 		return
-
-	if ( _tst_empty(tr,tc)        ): # if cell empty, skip handling
-		return
-	if ( b[tr][tc].get_animated() ): # cel is in animation,  skip handling
-		return
-
-	blkinfo = b[tr][tc].get_blocktype()
-	match blkinfo :
-		BLOCKTYPE.WALL:  return ;
-		BLOCKTYPE.BLANK: return;
-		BLOCKTYPE.BOMB:  return ;
-		#BLOCKTYPE.KEY:  return ;
-
-	blkinfo  = b[tr][tc].get_blocklayer()
-	match blkinfo :
-		BLOCKLAYER.ICE       : return  ;
-		BLOCKLAYER.CHAIN     : return  ;
-		BLOCKLAYER.CHAINS    : return  ;
-		BLOCKLAYER.BOMBSMALL : return  ;
-		BLOCKLAYER.BOMBLARGE : return  ;
-		BLOCKLAYER.LOCK      : return  ;
-		#BLOCKLAYER.DICE      : return  ;
-		#BLOCKLAYER.CLOCK     : return ;
 
 	b[r][c].set_animated(true)
 	b[tr][tc].set_animated(true)
@@ -662,6 +663,80 @@ func swapblocks(loc:Vector2, dir:String):
 	$Tween.start()                                                     # start block swapping animation
 	Global.playsound("slide")
 	if db: print("swapblock: "+ str(p[r][c])+" "+ str( p[tr][tc] ) )		
+#--------------------------------------------------------------
+# several tests if block is swapable, used bij swapblocks()
+func _is_swapableblock(r, c, dir):
+
+	if ( r > Global.board.height ) or ( c > Global.board.width ):
+		print("ERROR swapblocks vec out of range")
+		return ( false )
+	
+	if ( _tst_empty(r,c) ) :   # if mouse_down cell empty, skip handling
+		return ( false )
+	
+	var blkinfo = b[r][c].get_blocktype()
+	match blkinfo :
+		BLOCKTYPE.WALL:  return ( false ) ;
+		BLOCKTYPE.BLANK: return ( false ) ;
+		BLOCKTYPE.BOMB:  return ( false ) ;
+		#BLOCKTYPE.KEY:  return ( false ) ;
+
+	blkinfo  = b[r][c].get_blocklayer()
+	match blkinfo :
+		BLOCKLAYER.ICE       : return ( false ) ;
+		BLOCKLAYER.CHAIN     : return ( false ) ;
+		BLOCKLAYER.CHAINS    : return ( false ) ;
+		BLOCKLAYER.BOMBSMALL : return ( false ) ;
+		BLOCKLAYER.BOMBLARGE : return ( false ) ;
+		BLOCKLAYER.LOCK      : return ( false ) ;
+		#BLOCKLAYER.DICE      : return ( false ) ;
+		#BLOCKLAYER.CLOCK     : return ( false ) ;
+		
+	if ( b[r][c].get_animated() ): # cel is in animation,  skip handling
+		return ( false )
+
+	var tr
+	var tc
+	if    dir == "up":
+		tr = r-1
+		tc = c
+	elif  dir == "down":
+		tr = r+1
+		tc = c
+	elif  dir == "left":
+		tr = r
+		tc = c-1
+	elif  dir == "right":
+		tr = r
+		tc = c+1
+	else:
+		print("error swapblocks dir string")
+		return ( false )
+
+	if ( _tst_empty(tr,tc)        ): # if cell empty, skip handling
+		return ( false )
+	if ( b[tr][tc].get_animated() ): # cel is in animation,  skip handling
+		return ( false )
+
+	blkinfo = b[tr][tc].get_blocktype()
+	match blkinfo :
+		BLOCKTYPE.WALL:  return ( false ) ;
+		BLOCKTYPE.BLANK: return ( false ) ;
+		BLOCKTYPE.BOMB:  return ( false ) ;
+		#BLOCKTYPE.KEY:  return ( false ) ;
+
+	blkinfo  = b[tr][tc].get_blocklayer()
+	match blkinfo :
+		BLOCKLAYER.ICE       : return ( false ) ;
+		BLOCKLAYER.CHAIN     : return ( false ) ;
+		BLOCKLAYER.CHAINS    : return ( false ) ;
+		BLOCKLAYER.BOMBSMALL : return ( false ) ;
+		BLOCKLAYER.BOMBLARGE : return ( false ) ;
+		BLOCKLAYER.LOCK      : return ( false ) ;
+		#BLOCKLAYER.DICE      : return ( false ) ;
+		#BLOCKLAYER.CLOCK     : return ( false ) ;
+
+	return ( true )
 
 #------------------------------------------------------------------------------
 func clear_animated():
@@ -676,7 +751,7 @@ func rand_bool(percentagetrue:float = 50.0) -> bool:
 	return (false)
 
 #------------------------------------------------------------------------------
-func _process(delta):
+func _process(_delta):
 
 	$Label.text = "fsm:"+ str(fsm)   #debug
 
@@ -692,25 +767,22 @@ func _process(delta):
 			fsm = GAME
 		GAME:     #----------------------------------- GAME
 
-			if ( gameprogress.endoflevelreached == true ) :
+			if gameprogress.keyhitlock and gameprogress.hitalltiles  :
+				gameprogress.endoflevelreached = true
 				fsm = CLRBOARD
-			else:
-#				if ( userinputdetected.occured ):
-#					userinputdetected.occured = false
-#					swapblocks(userinputdetected.v, userinputdetected.s)
 
-				if findmatch():
-					fsm = MATCH
+			if findmatch():
+				fsm = MATCH
 			
 			if ( gameprogress.nomoremoves ) :
-				pass
+				destroyrandomblocks()
+				fsm = MATCH
+				
 			if ( gameprogress.nomoretime ) :
-				pass
-			if ( gameprogress.hitalltiles ) :
-				pass
-			else :
-				nroftilesonboard()
+				fsm = OUTOFTIME
 
+			if not ( gameprogress.hitalltiles ) :
+				nroftilesonboard()
 
 		MATCH:    #----------------------------------- MATCH
 			if ( $Tween.is_active() == false ):
@@ -718,7 +790,6 @@ func _process(delta):
 				destroyblocks()
 				fsm = COLLAPSE
 		COLLAPSE: #----------------------------------- COLLAPSE
-
 			if ( findunsuportedblock() == false) :
 				fsm = GAME
 		CLRBOARD: #----------------------------------- CLRBOARD
@@ -730,6 +801,18 @@ func _process(delta):
 				balloon.amount = "New Level loading"
 				Global.node_creation_parent.add_child(balloon) 
 				fsm = NEXTLEVEL
+		OUTOFTIME: #---------------------------------- OUTOFTIME
+			if ( $Tween.is_active() == false ):
+				animateclrboard()
+				tmr_tick = 40            # 30x 100ms
+				var balloon = res_floatingtext.instance()
+				balloon.set_style("banner")
+				balloon.amount = "OUT OF TIME"
+				Global.node_creation_parent.add_child(balloon) 
+				fsm = RELOADBOARD
+		RELOADBOARD:#--------------------------------- RELOADBOARD
+			if tmr_tick == 0:
+				fsm = NEWBOARD
 		NEXTLEVEL:#----------------------------------- NEXTLEVEL
 			if tmr_tick == 0:
 				if ( Global.node_levels.set_next_level() == false ):
@@ -749,7 +832,20 @@ func _process(delta):
 
 #------------------------------------------------------------------------------
 func _sig_mouse_event(v,s):
-	swapblocks(v, s)
+	if (fsm == GAME)or(fsm == MATCH)or(fsm == COLLAPSE):
+		swapblocks(v, s)
+
+func _sig_mouse_drag_event( enabled , v, dir):
+	if enabled == true :
+		var r  : int  = int( round(v.y) )         # rows
+		var c  : int  = int( round(v.x) )         # column
+	#	var tr : int                              # target row
+	#	var tc : int                              # target column
+
+		if ( _is_swapableblock(r, c, dir) ):
+			pass
+	else:
+		pass
 
 #------------------------------------------------------------------------------
 # signal received from mousehandler.gd that user has been inactive
@@ -789,8 +885,11 @@ func _on_Tween_tween_all_completed():
 
 #------------------------------------------------------------------------------
 func _on_Button_Debug_pressed():
-	gameprogress.endoflevelreached = true
-	print("DEBUG .")
+	#gameprogress.endoflevelreached = true
+	Global.instance_node(res_flyingblock, p[2][4], Global.node_creation_parent)
+	Global.node_flyingblock.config( p[2][4], Global.KEYMATCHED_POS , BLOCKLAYER.KEY, 2, 0)
+	Global.node_scoreboard.show_key()
+	print("DEBUG Button.")
 
 #------------------------------------------------------------------------------
 # copy the b[][] array to a simplified va[][] with just (int) frame nr

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://blocks/img_normal/match_matrix.png" type="Texture" id=1]
 [ext_resource path="res://blocks/img_layers/icleblock.png" type="Texture" id=2]
@@ -6,11 +6,13 @@
 [ext_resource path="res://blocks/img_special/key_heart.png" type="Texture" id=4]
 [ext_resource path="res://blocks/img_special/stone_square_texture.png" type="Texture" id=5]
 [ext_resource path="res://blocks/img_special/bomb_02.png" type="Texture" id=6]
-[ext_resource path="res://blocks/img_crates/crate_wood_01.png" type="Texture" id=7]
-[ext_resource path="res://blocks/img_crates/crate_wood_02.png" type="Texture" id=8]
-[ext_resource path="res://blocks/img_crates/crate_wood_03.png" type="Texture" id=9]
-[ext_resource path="res://blocks/img_crates/crate_wood_04.png" type="Texture" id=10]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_01.png" type="Texture" id=7]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_04.png" type="Texture" id=8]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_05.png" type="Texture" id=9]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_03.png" type="Texture" id=10]
 [ext_resource path="res://blocks/img_normal/transparent_128x128.png" type="Texture" id=11]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_06.png" type="Texture" id=12]
+[ext_resource path="res://blocks/img_crates/WoodenCrate_02.png" type="Texture" id=13]
 
 [sub_resource type="AtlasTexture" id=1]
 flags = 4
@@ -84,7 +86,7 @@ animations = [ {
 "name": "special",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 11 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 11 ), ExtResource( 7 ), ExtResource( 13 ), ExtResource( 10 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 12 ), ExtResource( 5 ) ],
 "loop": true,
 "name": "crates",
 "speed": 5.0

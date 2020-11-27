@@ -18,8 +18,8 @@ func start():
 	var dest2:PoolVector2Array
 	
 	if points.size() != 5 :
-		return ( false )
 		queue_free()
+		return ( false )
 	
 	dest1.append( points[1] )
 	dest1.append( points[0] )

@@ -38,6 +38,7 @@ func update():
 	$TextureProgress.max_value = Global.board.clock
 	$TextureProgress.value     = 0
 
+	show_key( false )
 	
 	# clear all arrays	
 	for i in range( _blocktypes.size() )      : _blocktypes[i].queue_free() ;
@@ -46,7 +47,7 @@ func update():
 	_blocktypes.clear()
 	_blockscoreLabel.clear()
 
-	var pos = Vector2(950 , 200)
+	var pos = Vector2(950 , 300)
 	for i in range( Global.board.uniqueblocks + 1 ):
 		_blockscore.append(0)
 		_blocktypes.append(Node2D)
@@ -113,6 +114,10 @@ func update_hittiles(i:int):
 		var twinkle = node_twinkle.instance()
 		twinkle.position = $TextureRect_tile.rect_position + ( 0.5 * $TextureRect_tile.rect_size )
 		Global.node_creation_parent.add_child( twinkle )
+
+func show_key( b:bool = true):
+	$TextureRect_key.visible = b
+
 
 #==============================================================================
 	#var colorstart = Color("c8000000")  # c8000000   blackgold

@@ -13,7 +13,7 @@ var _in_animation:bool  = false      # flag if block in an animation currently
 enum BLOCKTYPE  { ERROR, NORMAL, WALL, BLANK, KEY, BOMB, CLOCK , END }
 var _blocktype:int
 
-enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , END }
+enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , KEY, END }
 var _blocklayer:int
 
 # blk_sprites
@@ -150,7 +150,7 @@ func set_blocktype( value:int ):
 		BLOCKTYPE.WALL :
 			$blk_sprites.animation = "crates"
 			self.scale  = DEFAULT_CRATESCALE
-			$blk_sprites.set_frame( 1+randi()%4 )
+			$blk_sprites.set_frame( 1+randi()%6 )
 			$blk_sprites.set_z_index(1)
 			_blocktype = BLOCKTYPE.WALL
 		BLOCKTYPE.BLANK:

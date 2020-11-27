@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://scoreboard/scoreboard.gd" type="Script" id=1]
-[ext_resource path="res://font/Font.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://font/SEVESBRG.TTF" type="DynamicFontData" id=2]
 [ext_resource path="res://scoreboard/img/JapanRisingSun.png" type="Texture" id=3]
 [ext_resource path="res://background/img_tile/jap_tile_01.png" type="Texture" id=4]
+[ext_resource path="res://blocks/img_special/key_heart.png" type="Texture" id=5]
 
 [sub_resource type="DynamicFont" id=1]
 size = 24
@@ -11,7 +12,7 @@ use_filter = true
 font_data = ExtResource( 2 )
 
 [sub_resource type="DynamicFont" id=2]
-size = 24
+size = 26
 use_filter = true
 font_data = ExtResource( 2 )
 
@@ -63,14 +64,25 @@ __meta__ = {
 }
 
 [node name="Label_tiles" type="Label" parent="."]
-margin_left = 945.235
-margin_top = 136.94
-margin_right = 975.235
-margin_bottom = 163.94
+margin_left = 939.679
+margin_top = 139.123
+margin_right = 982.679
+margin_bottom = 166.123
 custom_fonts/font = SubResource( 2 )
 text = "100"
 align = 1
 valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect_key" type="TextureRect" parent="."]
+margin_left = 930.0
+margin_top = 190.0
+margin_right = 990.0
+margin_bottom = 250.0
+texture = ExtResource( 5 )
+expand = true
 __meta__ = {
 "_edit_use_anchors_": false
 }

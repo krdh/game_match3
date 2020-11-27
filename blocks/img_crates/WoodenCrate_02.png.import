@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/crate_wood_02.png-69c8f94e0bfbae1ac9f3c7fd15b68a98.stex"
+path="res://.import/WoodenCrate_02.png-eba89f88dbcabb070f1e5750532629f3.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_crates/crate_wood_02.png"
-dest_files=[ "res://.import/crate_wood_02.png-69c8f94e0bfbae1ac9f3c7fd15b68a98.stex" ]
+source_file="res://blocks/img_crates/WoodenCrate_02.png"
+dest_files=[ "res://.import/WoodenCrate_02.png-eba89f88dbcabb070f1e5750532629f3.stex" ]
 
 [params]
 

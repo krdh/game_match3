@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/pocketwatch.png-6c1ed5932db3aa47cc80f7d77a3b9066.stex"
+path="res://.import/WoodenCrate_04.png-1e35db5d7bba2e5c30a3df1c38740d95.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_layers/pocketwatch.png"
-dest_files=[ "res://.import/pocketwatch.png-6c1ed5932db3aa47cc80f7d77a3b9066.stex" ]
+source_file="res://blocks/img_crates/WoodenCrate_04.png"
+dest_files=[ "res://.import/WoodenCrate_04.png-1e35db5d7bba2e5c30a3df1c38740d95.stex" ]
 
 [params]
 

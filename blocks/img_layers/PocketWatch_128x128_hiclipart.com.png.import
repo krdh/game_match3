@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/crate_wood_03.png-dd836ec98527df7c436ab32801aa7df3.stex"
+path="res://.import/PocketWatch_128x128_hiclipart.com.png-fb343a70dd505d378ff222b85c14fc3b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_crates/crate_wood_03.png"
-dest_files=[ "res://.import/crate_wood_03.png-dd836ec98527df7c436ab32801aa7df3.stex" ]
+source_file="res://blocks/img_layers/PocketWatch_128x128_hiclipart.com.png"
+dest_files=[ "res://.import/PocketWatch_128x128_hiclipart.com.png-fb343a70dd505d378ff222b85c14fc3b.stex" ]
 
 [params]
 

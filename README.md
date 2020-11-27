@@ -32,3 +32,14 @@ I play/test the game on a linux system using a mouse.
 - ... juice and pollish ...
 
 ![screenshot](https://github.com/krdh/game_match3/blob/master/Gamedesign/Screenshot.png)
+
+# Resources:
+jewel sprites         , GPL-3.0 License           , github.com/tanooki-games/guardian_monsters_puzzle
+key                   , free for personal use     , www.iconfinder.com/icons/71494/key_heart_love_gold_icon
+Golden padlock        , non-Commercial Use        , hiclipart
+bomb                  , Pixabay License           , pixabay.com
+explosion animation   , opengameart.org           , Ashish Kumar Yadav (ashishlko11)
+Pocket Watch (edited) , non-Commercial Use        , hiclipart
+chain(s)     (edited) , non-Commercial Use        , hiclipart
+Wooden Crates (edited), non-Commercial Use        , hiclipart
+font, seven swordsmen , freeware                  , Nate Piekos

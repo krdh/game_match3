@@ -124,7 +124,7 @@ var levelconf_2 = {
 	newbombpct   = 2 ,
 	newdicepct   = 0 ,
 	newclockpct  = 0 ,
-	maxkeys      = 2 ,
+	maxkeys      = 3 ,
 	tutorial     = dict_tutorial_2
 	}
 
@@ -213,9 +213,9 @@ var levelconf_4 = {
 	width        = int(14) ,
 	clock        = 3*60    ,
 	uniqueblocks = 5 ,
-	newicepct    = 1 ,
+	newicepct    = 0 ,
 	newbombpct   = 1 ,
-	newdicepct   = 2 ,
+	newdicepct   = 5 ,
 	newclockpct  = 2 ,
 	maxkeys      = 3 ,
 	tutorial     = dict_tutorial_4

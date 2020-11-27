@@ -6,11 +6,12 @@ extends Node
 # Positions of things in the game
 const ZEROVECTOR       = Vector2(0,0)
 const CENTERSCREEN     = Vector2(400,300)
-const RISINGSUN_POS    = Vector2(960, 30)
+const RISINGSUN_POS    = Vector2(960, 30)           # pos of countdown image
+const KEYMATCHED_POS   = Vector2(960,220)           # pos of key on scoreboard
 
 const NRUNIQUEBLOCKS      = 8
 
-enum BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , END }
+enum  BLOCKLAYER { ERROR, NONE, ICE, CHAIN, CHAINS, BOMBSMALL, BOMBLARGE, LOCK, KEYHOLE , DICE, CLOCK , KEY, END }
 
 const grid   = 56         # correct for scaling blk.gd : 128pixel * scale(0.25) = 64
 const offset = 1 + ( grid / 2.0 )
@@ -37,6 +38,7 @@ var node_background      = null
 var node_matchfinder     = null
 var node_levels          = null
 var node_dicerays        = null
+var node_flyingblock     = null
 
 #- - - - - - - - - - - - - - - - - - - - -  node_scoreboard
 var node_scoreboard_config = {
@@ -64,7 +66,7 @@ func playsound(sound, frompos:float = 0.0):
 	if node_sound_guy != null :
 		if node_sound_guy.has_node(sound):
 			node_sound_guy.get_node(sound).play( frompos )
-			print("playing sound")
+			#print("playing sound")
 #example Global.playsound("slide")
 #example Global.playsound("")
 

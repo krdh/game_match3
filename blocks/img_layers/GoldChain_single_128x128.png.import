@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/chain_silver_single.png-9fe095aa9c6a9a4525a9cc0ff2191695.stex"
+path="res://.import/GoldChain_single_128x128.png-e1e961a99637a509ddf4a1b1e90f4be2.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_layers/chain_silver_single.png"
-dest_files=[ "res://.import/chain_silver_single.png-9fe095aa9c6a9a4525a9cc0ff2191695.stex" ]
+source_file="res://blocks/img_layers/GoldChain_single_128x128.png"
+dest_files=[ "res://.import/GoldChain_single_128x128.png-e1e961a99637a509ddf4a1b1e90f4be2.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

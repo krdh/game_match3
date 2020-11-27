@@ -7,6 +7,7 @@ var mouse_cor:Vector2
 var player_idle:float = 0
 
 signal mouse_event()
+signal mouse_drag()
 signal player_idle()
 
 func _ready():
@@ -34,11 +35,24 @@ func _input(event):
 			else:
 				emit_signal("mouse_event",loc, dir)
 
+
+	if event is InputEventMouseMotion :
+		if mouse_drag :
+			var v:Vector2 = ( event.position - mouse_cor)
+			var loc = location(mouse_cor)
+			var dir = direction(v)
+			if dir != "err" :
+				print("mousehandler: "+ str( mouse_cor ) + " " + str( event.position ) + " " + str( v ) + direction(v) + " " + str( loc ) )
+				emit_signal("mouse_drag", true , loc, dir )
+			else:
+				emit_signal("mouse_drag", false, loc, dir)
+			
 #------------------------------------------------------------------------------
 func location(vec:Vector2) -> Vector2:
 	var r = floor( (vec.y ) / Global.grid )
 	var c = floor( (vec.x ) / Global.grid )
 	return ( Vector2(c,r) )
+	
 #------------------------------------------------------------------------------
 func direction(vec:Vector2) -> String:
 	if vec.length() <= 20:       #require minimum drag length (in pixels??)
@@ -52,7 +66,6 @@ func direction(vec:Vector2) -> String:
 		if   vec.y > 0: r = "down"
 	return ( r )
 #==============================================================================
-
 
 func _on_Timer_timeout():
 	player_idle += $Timer.get_wait_time()

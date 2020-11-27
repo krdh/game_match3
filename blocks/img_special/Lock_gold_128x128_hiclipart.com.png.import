@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/crate_wood_01.png-4da359ecc511c3f767d88f1106f4f75c.stex"
+path="res://.import/Lock_gold_128x128_hiclipart.com.png-b58b8d587a4ddd8c096115b82cb56046.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_crates/crate_wood_01.png"
-dest_files=[ "res://.import/crate_wood_01.png-4da359ecc511c3f767d88f1106f4f75c.stex" ]
+source_file="res://blocks/img_special/Lock_gold_128x128_hiclipart.com.png"
+dest_files=[ "res://.import/Lock_gold_128x128_hiclipart.com.png-b58b8d587a4ddd8c096115b82cb56046.stex" ]
 
 [params]
 

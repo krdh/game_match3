@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://blocks/blk.gd" type="Script" id=1]
-[ext_resource path="res://font/Xolonium-Regular.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://font/SEVESBRG.TTF" type="DynamicFontData" id=2]
 [ext_resource path="res://blocks/blk_sprites.tscn" type="PackedScene" id=3]
 [ext_resource path="res://blocks/blk_layer.tscn" type="PackedScene" id=5]
 

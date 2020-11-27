@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/padlock_01.png-cc3c7dea9f34784c9d3dda41f361b0ab.stex"
+path="res://.import/WoodenCrate_05.png-1489643063323973078c0844c1359b02.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://blocks/img_special/padlock_01.png"
-dest_files=[ "res://.import/padlock_01.png-cc3c7dea9f34784c9d3dda41f361b0ab.stex" ]
+source_file="res://blocks/img_crates/WoodenCrate_05.png"
+dest_files=[ "res://.import/WoodenCrate_05.png-1489643063323973078c0844c1359b02.stex" ]
 
 [params]
 
